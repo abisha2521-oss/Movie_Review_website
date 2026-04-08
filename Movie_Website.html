@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineReel — Movie Reviews</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c26;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0eee8;
+    --muted: #8b8996;
+    --accent: #e8453c;
+    --accent2: #f0a500;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grain effect */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--text);
+    text-decoration: none;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .logo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+
+  .search-wrap {
+    flex: 1;
+    max-width: 380px;
+    position: relative;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 9px 14px 9px 38px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-wrap input:focus { border-color: var(--border2); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.18s;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text);
+  }
+
+  .btn:hover { background: var(--surface); }
+
+  .btn-accent {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-accent:hover { background: #c93830; border-color: #c93830; }
+
+  /* ─── MAIN LAYOUT ─── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── HERO STRIP ─── */
+  .hero {
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 80px);
+    line-height: 0.95;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+
+  .hero-title span {
+    display: block;
+    color: var(--accent);
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 0.55em;
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+
+  .hero-stat {
+    text-align: right;
+  }
+
+  .hero-stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--accent2);
+    letter-spacing: 1px;
+  }
+
+  .hero-stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  /* ─── TABS ─── */
+  .tabs-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.3px;
+  }
+
+  .tab:hover { border-color: var(--border2); color: var(--text); }
+
+  .tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ─── SECTION LABEL ─── */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── MOVIE GRID ─── */
+  .movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 18px;
+    margin-bottom: 3rem;
+  }
+
+  .movie-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    animation: cardIn 0.4s ease both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .movie-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border2);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  }
+
+  .poster {
+    width: 100%;
+    aspect-ratio: 2/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .poster-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+  }
+
+  .score-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.8);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  .movie-info {
+    padding: 12px 14px 14px;
+  }
+
+  .movie-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+
+  .stars-row {
+    display: flex;
+    gap: 2px;
+    margin: 5px 0 4px;
+  }
+
+  .star-icon {
+    width: 11px;
+    height: 11px;
+    fill: var(--accent2);
+  }
+
+  .star-icon.empty { fill: #333; }
+
+  .movie-meta {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .genre-tag {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* ─── DETAIL PANEL ─── */
+  .detail-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+    animation: slideDown 0.3s ease;
+    position: relative;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .detail-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .detail-close:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+
+  .detail-header {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .detail-poster {
+    width: 130px;
+    height: 195px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .detail-info { flex: 1; min-width: 200px; }
+
+  .detail-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+    line-height: 1;
+  }
+
+  .detail-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .scores-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .score-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .score-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1px;
+  }
+
+  .score-lbl {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  .detail-desc {
+    font-size: 14px;
+    line-height: 1.75;
+    color: rgba(240,238,232,0.7);
+    max-width: 560px;
+  }
+
+  /* ─── REVIEWS ─── */
+  .reviews-section {
+    border-top: 1px solid var(--border);
+    padding-top: 1.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .reviews-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+  }
+
+  .review-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+
+  .review-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .reviewer-name {
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .reviewer-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .review-text {
+    font-size: 13px;
+    color: rgba(240,238,232,0.65);
+    line-height: 1.65;
+  }
+
+  /* ─── WRITE REVIEW ─── */
+  .write-review {
+    border-top: 1px solid var(--border);
+    padding-top: 1.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .write-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+  }
+
+  .star-picker {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .star-pick {
+    font-size: 26px;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.1s, transform 0.1s;
+    line-height: 1;
+  }
+
+  .star-pick.lit { color: var(--accent2); }
+  .star-pick:hover { transform: scale(1.15); }
+
+  .form-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .form-row input,
+  .form-row textarea,
+  textarea.solo {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.18s;
+    width: 100%;
+    resize: none;
+  }
+
+  .form-row input:focus,
+  textarea.solo:focus { border-color: var(--accent); }
+
+  textarea.solo {
+    height: 90px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .form-row input { flex: 1; min-width: 140px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-size: 14px;
+    grid-column: 1 / -1;
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    z-index: 9999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── LIVE COMMENTS ─── */
+  .comments-section {
+    border-top: 1px solid var(--border);
+    padding-top: 1.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .comments-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .comments-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #4ade80;
+    border: 1px solid rgba(74,222,128,0.3);
+    background: rgba(74,222,128,0.07);
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: pulse-dot 1.4s infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .comment-count {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .comments-list {
+    max-height: 340px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .comments-list::-webkit-scrollbar { width: 4px; }
+  .comments-list::-webkit-scrollbar-track { background: transparent; }
+  .comments-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  .comment-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    animation: commentIn 0.3s ease both;
+  }
+
+  @keyframes commentIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .comment-item.own { flex-direction: row-reverse; }
+
+  .comment-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+    color: #fff;
+  }
+
+  .comment-bubble {
+    max-width: 75%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 12px 4px;
+    padding: 9px 13px;
+  }
+
+  .comment-item.own .comment-bubble {
+    background: rgba(232,69,60,0.12);
+    border-color: rgba(232,69,60,0.25);
+    border-radius: 12px 12px 4px 12px;
+  }
+
+  .comment-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .comment-user {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .comment-time {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .comment-like-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .comment-like-btn:hover { color: #e8453c; background: rgba(232,69,60,0.08); }
+  .comment-like-btn.liked { color: #e8453c; }
+
+  .comment-text {
+    font-size: 13px;
+    color: rgba(240,238,232,0.8);
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  .comment-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .comment-input-wrap {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px 12px;
+    gap: 8px;
+    transition: border-color 0.18s;
+  }
+
+  .comment-input-wrap:focus-within { border-color: var(--accent); }
+
+  .comment-input-wrap textarea {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    resize: none;
+    height: 36px;
+    max-height: 100px;
+    line-height: 1.5;
+    overflow-y: auto;
+  }
+
+  .comment-input-wrap textarea::placeholder { color: var(--muted); }
+
+  .comment-send-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .comment-send-btn:hover { background: #c93830; }
+  .comment-send-btn:active { transform: scale(0.93); }
+  .comment-send-btn svg { color: #fff; }
+
+  .comment-name-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  .comment-name-row input {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 6px 10px;
+    outline: none;
+    width: 160px;
+    transition: border-color 0.18s;
+  }
+
+  .comment-name-row input:focus { border-color: var(--accent); }
+
+  .comments-empty {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--muted);
+    font-size: 13px;
+    border: 1px dashed var(--border2);
+    border-radius: var(--radius);
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    main { padding: 1.5rem 1rem 3rem; }
+    .header-inner { gap: 0.75rem; }
+    .search-wrap { max-width: 200px; }
+    .movie-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+    .detail-header { gap: 1rem; }
+    .detail-poster { width: 100px; height: 150px; font-size: 44px; }
+    .detail-title { font-size: 26px; }
+    .hero-title { font-size: 42px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#"><span class="logo-dot"></span>CINEREEL</a>
+    <div class="search-wrap">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+        <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search movies, genres..." oninput="filterMovies()">
+    </div>
+    <div class="header-right">
+      <button class="btn btn-accent" onclick="scrollToWrite()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Add Review
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-title">
+      YOUR NEXT<br>FAVOURITE<br>
+      <span>film starts here.</span>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="totalMovies">8</div>
+      <div class="hero-stat-label">Films Reviewed</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-row">
+    <button class="tab active" onclick="setTab(this,'all')">All Films</button>
+    <button class="tab" onclick="setTab(this,'action')">Action</button>
+    <button class="tab" onclick="setTab(this,'drama')">Drama</button>
+    <button class="tab" onclick="setTab(this,'scifi')">Sci-Fi</button>
+    <button class="tab" onclick="setTab(this,'comedy')">Comedy</button>
+    <button class="tab" onclick="setTab(this,'thriller')">Thriller</button>
+  </div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detailPanel"></div>
+
+  <!-- Section Label -->
+  <div class="section-label" id="sectionLabel">Featured Films</div>
+
+  <!-- Movie Grid -->
+  <div class="movie-grid" id="movieGrid"></div>
+</main>
+
+<footer>
+  &copy; 2025 CineReel &mdash; All reviews are opinions of their authors.
+</footer>
+
+<div class="toast" id="toast">Review submitted!</div>
+
+<script>
+  // ─── DATA ───
+  const movies = [
+    {id:1,title:"Dune: Part Two",year:2024,genre:"scifi",poster:"🏜️",bg:"#3a2a0a",score:8.8,critics:91,audience:88,
+     desc:"Paul Atreides unites with the Fremen of Arrakis and wages war against those who destroyed his family, as he grapples with his messianic destiny.",
+     reviews:[{user:"Arya K.",stars:5,text:"Visually stunning. Villeneuve has outdone himself with this epic conclusion."},{user:"Rohit M.",stars:4,text:"A masterwork of sci-fi cinema. The sandworm ride sequence alone is worth the price of admission."}]},
+    {id:2,title:"Oppenheimer",year:2023,genre:"drama",poster:"☢️",bg:"#2a1a0a",score:8.9,critics:93,audience:90,
+     desc:"The story of J. Robert Oppenheimer's role in the development of the atomic bomb during World War II, and the moral weight that followed.",
+     reviews:[{user:"Meera S.",stars:5,text:"Nolan's magnum opus. Cillian Murphy delivers a career-defining performance."},{user:"Dev P.",stars:5,text:"Three hours that feel like thirty minutes. Truly one of the best films ever made."}]},
+    {id:3,title:"Past Lives",year:2023,genre:"drama",poster:"🌸",bg:"#2a0a1a",score:8.0,critics:98,audience:86,
+     desc:"Two childhood friends are separated for 24 years when one emigrates from South Korea, eventually reuniting in New York City.",
+     reviews:[{user:"Nisha R.",stars:5,text:"Quietly devastating. One of the most mature and beautiful films about love and choices."},{user:"Vikram T.",stars:4,text:"A film that lingers long after the credits roll."}]},
+    {id:4,title:"Poor Things",year:2023,genre:"comedy",poster:"⚗️",bg:"#1a0a2a",score:8.0,critics:91,audience:72,
+     desc:"A young woman brought back to life by an eccentric scientist embarks on a wild journey across Europe, discovering the pleasures of the flesh.",
+     reviews:[{user:"Priya N.",stars:5,text:"Emma Stone is absolutely electric. A bizarre, beautiful, boundary-pushing film."},{user:"Kiran A.",stars:3,text:"Fascinating but challenging — not for everyone, but a one-of-a-kind experience."}]},
+    {id:5,title:"Mission: Impossible",year:2023,genre:"action",poster:"💣",bg:"#0a1a2a",score:7.8,critics:96,audience:95,
+     desc:"Ethan Hunt and his IMF team embark on their most dangerous mission to date — tracking down a terrifying new weapon before it falls into the wrong hands.",
+     reviews:[{user:"Ajay R.",stars:5,text:"The best action film of the year. Cruise's commitment to practical stunts is unreal."},{user:"Sneha V.",stars:4,text:"Pure adrenaline from start to finish. The train sequence is jaw-dropping."}]},
+    {id:6,title:"Saltburn",year:2023,genre:"thriller",poster:"🏚️",bg:"#0a2a1a",score:7.4,critics:71,audience:82,
+     desc:"A young Oxford student becomes enthralled by a charismatic classmate and is invited to his sprawling ancestral estate for the summer.",
+     reviews:[{user:"Ananya B.",stars:4,text:"Mesmerizing and deeply unsettling. Barry Keoghan gives a mesmerizing performance."},{user:"Suresh K.",stars:3,text:"Style over substance, but what style. The ending had my jaw on the floor."}]},
+    {id:7,title:"The Holdovers",year:2023,genre:"comedy",poster:"❄️",bg:"#0a1a2a",score:8.0,critics:96,audience:93,
+     desc:"A curmudgeonly history teacher is forced to babysit a handful of students over Christmas break while his colleagues travel home.",
+     reviews:[{user:"Laila M.",stars:5,text:"A warm, funny, and deeply human film. Paul Giamatti is perfection."},{user:"Rajan D.",stars:5,text:"The kind of movie Hollywood doesn't make often enough. Absolutely loved it."}]},
+    {id:8,title:"Killers of the Flower Moon",year:2023,genre:"drama",poster:"🌙",bg:"#2a1a0a",score:7.7,critics:94,audience:80,
+     desc:"Members of the Osage Nation are murdered under mysterious circumstances in 1920s Oklahoma, and the newly formed FBI launches an investigation.",
+     reviews:[{user:"Pooja S.",stars:4,text:"Scorsese's most ambitious and morally complex work. A difficult but essential film."},{user:"Rahul G.",stars:4,text:"Three and a half hours, but every minute earns its place."}]},
+  ];
+
+  let currentTab = 'all';
+  let selectedMovie = null;
+  let pickedStars = 0;
+  let userReviews = {};
+
+  // ─── RENDER GRID ───
+  function renderGrid(list) {
+    const grid = document.getElementById('movieGrid');
+    document.getElementById('totalMovies').textContent = list.length;
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty-state">No films found. Try a different search.</div>';
+      return;
+    }
+    grid.innerHTML = list.map((m, i) => `
+      <div class="movie-card" onclick="openDetail(${m.id})" style="animation-delay:${i * 0.05}s">
+        <div class="poster" style="background:${m.bg}">
+          <span>${m.poster}</span>
+          <div class="poster-overlay"></div>
+          <div class="score-badge">${m.score}</div>
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">${m.title}</div>
+          <div class="stars-row">${starBar(m.score)}</div>
+          <div class="movie-meta">${m.year}</div>
+          <span class="genre-tag">${cap(m.genre)}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  function starBar(score) {
+    const filled = Math.round(score / 2);
+    return [1,2,3,4,5].map(i =>
+      `<svg class="star-icon${i > filled ? ' empty' : ''}" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9.2,11 6,9.5 2.8,11 3.5,7.5 1,5 4.5,4.5"/></svg>`
+    ).join('');
+  }
+
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // ─── TAB ───
+  function setTab(el, tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    currentTab = tab;
+    closeDetail();
+    filterMovies();
+  }
+
+  // ─── FILTER ───
+  function filterMovies() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    let list = movies.filter(m =>
+      (currentTab === 'all' || m.genre === currentTab) &&
+      (!q || m.title.toLowerCase().includes(q) || m.genre.includes(q) || String(m.year).includes(q))
+    );
+    const lbl = q ? `Results for "${document.getElementById('searchInput').value}"` : 'Featured Films';
+    document.getElementById('sectionLabel').textContent = lbl;
+    renderGrid(list);
+  }
+
+  // ─── DETAIL ───
+  function openDetail(id) {
+    const m = movies.find(x => x.id === id);
+    selectedMovie = m;
+    pickedStars = 0;
+    const all = [...m.reviews, ...(userReviews[id] || [])];
+
+    const panel = document.getElementById('detailPanel');
+    panel.style.display = 'block';
+    panel.innerHTML = `
+      <button class="detail-close" onclick="closeDetail()">&#x2715;</button>
+      <div class="detail-header">
+        <div class="detail-poster" style="background:${m.bg}">${m.poster}</div>
+        <div class="detail-info">
+          <div class="detail-title">${m.title}</div>
+          <div class="detail-sub">${m.year} &middot; ${cap(m.genre)}</div>
+          <div class="scores-row">
+            <div class="score-box">
+              <div class="score-num" style="color:#e8453c">${m.score}</div>
+              <div class="score-lbl">CineReel</div>
+            </div>
+            <div class="score-box">
+              <div class="score-num" style="color:#f0a500">${m.critics}%</div>
+              <div class="score-lbl">Critics</div>
+            </div>
+            <div class="score-box">
+              <div class="score-num">${m.audience}%</div>
+              <div class="score-lbl">Audience</div>
+            </div>
+          </div>
+          <div class="detail-desc">${m.desc}</div>
+        </div>
+      </div>
+
+      <div class="reviews-section">
+        <div class="reviews-title">Reviews (${all.length})</div>
+        ${all.map(r => `
+          <div class="review-card">
+            <div class="review-top">
+              <span class="reviewer-name">
+                <span class="reviewer-avatar">${r.user.charAt(0)}</span>
+                ${r.user}
+              </span>
+              <div class="stars-row">${starBar(r.stars * 2)}</div>
+            </div>
+            <div class="review-text">${r.text}</div>
+          </div>`).join('')}
+
+        <div class="write-review" id="writeReview_${m.id}">
+          <div class="write-title">Write a Review</div>
+          <div class="star-picker" id="starPicker_${m.id}">
+            ${[1,2,3,4,5].map(i =>
+              `<span class="star-pick" data-s="${i}" onclick="pickStar(${m.id},${i})">&#9733;</span>`
+            ).join('')}
+          </div>
+          <textarea class="solo" id="reviewText_${m.id}" placeholder="Share your thoughts on ${m.title}..."></textarea>
+          <div class="form-row">
+            <input type="text" id="reviewerName_${m.id}" placeholder="Your name">
+            <button class="btn btn-accent" onclick="submitReview(${m.id})">Submit</button>
+          </div>
+        </div>
+
+        <div class="comments-section">
+          <div class="comments-header">
+            <div class="comments-title">
+              Live Comments
+              <span class="live-badge"><span class="live-dot"></span>Live</span>
+            </div>
+            <span class="comment-count" id="commentCount_${m.id}">0 comments</span>
+          </div>
+          <div class="comment-name-row">
+            <input type="text" id="commentName_${m.id}" placeholder="Your name" maxlength="30"
+              value="${lastCommentName}" oninput="lastCommentName=this.value.trim()">
+          </div>
+          <div class="comments-list" id="commentsList_${m.id}"></div>
+          <div class="comment-input-row">
+            <div class="comment-input-wrap">
+              <textarea id="commentInput_${m.id}" placeholder="Add a comment…" rows="1"
+                onkeydown="handleCommentKey(event,${m.id})"
+                oninput="autoGrow(this)"></textarea>
+            </div>
+            <button class="comment-send-btn" onclick="postComment(${m.id})" title="Send">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M2 8L14 2L8 14L7 9L2 8Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
+
+    renderComments(m.id);
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function closeDetail() {
+    document.getElementById('detailPanel').style.display = 'none';
+    selectedMovie = null;
+  }
+
+  // ─── STAR PICK ───
+  function pickStar(id, n) {
+    pickedStars = n;
+    document.querySelectorAll(`#starPicker_${id} .star-pick`).forEach(el => {
+      el.classList.toggle('lit', parseInt(el.dataset.s) <= n);
+    });
+  }
+
+  // ─── SUBMIT ───
+  function submitReview(id) {
+    const text = document.getElementById(`reviewText_${id}`).value.trim();
+    const name = document.getElementById(`reviewerName_${id}`).value.trim();
+    if (!name || !text) { showToast('Please enter your name and review.'); return; }
+    if (!pickedStars) { showToast('Please choose a star rating.'); return; }
+    if (!userReviews[id]) userReviews[id] = [];
+    userReviews[id].push({ user: name, stars: pickedStars, text });
+    showToast('Review submitted — thank you!');
+    setTimeout(() => openDetail(id), 400);
+  }
+
+  // ─── SCROLL TO WRITE ───
+  function scrollToWrite() {
+    const panel = document.getElementById('detailPanel');
+    if (panel.style.display === 'block') {
+      const wr = panel.querySelector('.write-review');
+      if (wr) { wr.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    }
+    openDetail(movies[0].id);
+  }
+
+  // ─── TOAST ───
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+
+  // ─── COMMENTS ENGINE ───
+  const AVATAR_COLORS = ['#e8453c','#f0a500','#3b82f6','#8b5cf6','#10b981','#f97316','#ec4899'];
+  let lastCommentName = '';
+
+  function getAvatarColor(name) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+    return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+  }
+
+  function loadComments(movieId) {
+    try { return JSON.parse(localStorage.getItem('cr_comments_' + movieId) || '[]'); }
+    catch(e) { return []; }
+  }
+
+  function saveComments(movieId, list) {
+    try { localStorage.setItem('cr_comments_' + movieId, JSON.stringify(list)); } catch(e){}
+  }
+
+  function timeAgo(ts) {
+    const s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 10) return 'just now';
+    if (s < 60) return s + 's ago';
+    if (s < 3600) return Math.floor(s/60) + 'm ago';
+    if (s < 86400) return Math.floor(s/3600) + 'h ago';
+    return Math.floor(s/86400) + 'd ago';
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderComments(movieId) {
+    const list = loadComments(movieId);
+    const container = document.getElementById('commentsList_' + movieId);
+    const countEl = document.getElementById('commentCount_' + movieId);
+    if (!container) return;
+    countEl.textContent = list.length + (list.length === 1 ? ' comment' : ' comments');
+    if (!list.length) {
+      container.innerHTML = '<div class="comments-empty">No comments yet — be the first to say something!</div>';
+      return;
+    }
+    const nameEl = document.getElementById('commentName_' + movieId);
+    const myName = (nameEl ? nameEl.value.trim() : '') || lastCommentName;
+    container.innerHTML = list.map((c, idx) => {
+      const isOwn = myName && c.user === myName;
+      const likes = c.likes || 0;
+      const liked = myName && (c.likedBy || []).includes(myName);
+      return '<div class="comment-item' + (isOwn ? ' own' : '') + '">' +
+        '<div class="comment-avatar" style="background:' + getAvatarColor(c.user) + '">' + escHtml(c.user.charAt(0).toUpperCase()) + '</div>' +
+        '<div class="comment-bubble">' +
+          '<div class="comment-meta">' +
+            '<span class="comment-user">' + escHtml(c.user) + '</span>' +
+            '<span class="comment-time">' + timeAgo(c.ts) + '</span>' +
+            '<button class="comment-like-btn' + (liked ? ' liked' : '') + '" onclick="toggleLike(' + movieId + ',' + idx + ')">' +
+              '<svg width="11" height="11" viewBox="0 0 12 12" fill="' + (liked ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.3"><path d="M6 10.5S1 7.5 1 4.5A2.5 2.5 0 0 1 6 3a2.5 2.5 0 0 1 5 1.5C11 7.5 6 10.5 6 10.5Z"/></svg>' +
+              (likes > 0 ? ' ' + likes : '') +
+            '</button>' +
+          '</div>' +
+          '<div class="comment-text">' + escHtml(c.text) + '</div>' +
+        '</div></div>';
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function toggleLike(movieId, idx) {
+    const nameEl = document.getElementById('commentName_' + movieId);
+    const myName = (nameEl ? nameEl.value.trim() : '') || lastCommentName;
+    if (!myName) { showToast('Enter your name to like comments.'); return; }
+    const list = loadComments(movieId);
+    if (!list[idx]) return;
+    const c = list[idx];
+    c.likedBy = c.likedBy || [];
+    if (c.likedBy.includes(myName)) {
+      c.likedBy = c.likedBy.filter(n => n !== myName);
+      c.likes = Math.max(0, (c.likes || 1) - 1);
+    } else {
+      c.likedBy.push(myName);
+      c.likes = (c.likes || 0) + 1;
+    }
+    saveComments(movieId, list);
+    renderComments(movieId);
+  }
+
+  function postComment(movieId) {
+    const nameEl = document.getElementById('commentName_' + movieId);
+    const inputEl = document.getElementById('commentInput_' + movieId);
+    const name = nameEl ? nameEl.value.trim() : '';
+    const text = inputEl ? inputEl.value.trim() : '';
+    if (!name) { showToast('Please enter your name before commenting.'); nameEl && nameEl.focus(); return; }
+    if (!text) { showToast('Comment cannot be empty.'); return; }
+    lastCommentName = name;
+    const list = loadComments(movieId);
+    list.push({ user: name, text: text, ts: Date.now(), likes: 0, likedBy: [] });
+    saveComments(movieId, list);
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    renderComments(movieId);
+  }
+
+  function handleCommentKey(e, movieId) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); postComment(movieId); }
+  }
+
+  function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  }
+
+  setInterval(function() {
+    if (selectedMovie) renderComments(selectedMovie.id);
+  }, 30000);
+
+  // ─── INIT ───
+  renderGrid(movies);
+</script>
+</body>
+</html>
